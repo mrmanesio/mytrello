@@ -2,14 +2,24 @@ import React from 'react';
 import styles from './styles/TaskCard.module.scss';
 import { TaskCardProps } from './types';
 import { formatDate } from '../../utils';
+import { useDraggable, useDragMonitor } from '../../hooks';
 
 const TaskCard: React.FC<TaskCardProps> = ({
   task,
   onTaskUpdate,
   onTaskDelete,
 }) => {
+  const dragRef = useDraggable(task.id, 'task', task.columnId);
+  const monitorRef = useDragMonitor();
+
   return (
-    <div className={styles.taskCard}>
+    <div
+      ref={element => {
+        dragRef(element);
+        monitorRef(element);
+      }}
+      className={styles.taskCard}
+    >
       <h4 className={styles.taskCard__title}>{task.title}</h4>
       {task.description && (
         <p className={styles.taskCard__description}>{task.description}</p>

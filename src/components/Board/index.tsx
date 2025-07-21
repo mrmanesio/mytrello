@@ -6,19 +6,19 @@ import {
   addTask,
   updateTask,
   deleteTask,
+  moveTask,
+  reorderColumns,
 } from '../../store/slices/boardSlice';
 import styles from './styles/Board.module.scss';
 import { BoardProps } from './types';
 import Header from '../Header';
-import TaskCard from '../TaskCard';
+import Column from '../Column';
+import { useDropTarget, DragItem, DropLocation } from '../../hooks';
 
 const Board: React.FC<BoardProps> = () => {
   const dispatch = useAppDispatch();
   const columns = useAppSelector(selectColumns);
   const allTasks = useAppSelector(state => state.board.tasks);
-
-  console.log('columns', columns);
-  console.log('allTasks', allTasks);
 
   const handleAddColumn = () => {
     const title = prompt('Введите название колонки:');
@@ -26,7 +26,7 @@ const Board: React.FC<BoardProps> = () => {
       dispatch(
         addColumn({
           title: title.trim(),
-          boardId: 'board_1', // Пока используем фиксированный ID доски
+          boardId: 'board_1',
         })
       );
     }
@@ -59,11 +59,62 @@ const Board: React.FC<BoardProps> = () => {
   };
 
   const handleTaskDelete = (taskId: string) => {
-    // eslint-disable-next-line no-alert
     if (window.confirm('Вы уверены, что хотите удалить эту задачу?')) {
       dispatch(deleteTask(taskId));
     }
   };
+
+  const handleTaskMove = (
+    taskId: string,
+    sourceColumnId: string,
+    destinationColumnId: string,
+    sourceIndex: number,
+    destinationIndex: number
+  ) => {
+    // Находим реальный sourceIndex
+    const sourceTasks = allTasks
+      .filter(task => task.columnId === sourceColumnId)
+      .sort((a, b) => a.order - b.order);
+
+    const actualSourceIndex = sourceTasks.findIndex(task => task.id === taskId);
+
+    if (actualSourceIndex !== -1) {
+      dispatch(
+        moveTask({
+          taskId,
+          sourceColumnId,
+          destinationColumnId,
+          sourceIndex: actualSourceIndex,
+          destinationIndex,
+        })
+      );
+    }
+  };
+
+  const handleColumnDrop = (item: DragItem, location: DropLocation) => {
+    if (item.type === 'column' && location.elementId) {
+      // Находим индексы колонок
+      const sourceIndex = columns.findIndex(col => col.id === item.id);
+      const destinationIndex = columns.findIndex(
+        col => col.id === location.elementId
+      );
+
+      if (
+        sourceIndex !== -1 &&
+        destinationIndex !== -1 &&
+        sourceIndex !== destinationIndex
+      ) {
+        dispatch(
+          reorderColumns({
+            startIndex: sourceIndex,
+            endIndex: destinationIndex,
+          })
+        );
+      }
+    }
+  };
+
+  const boardDropRef = useDropTarget(handleColumnDrop);
 
   const getTasksForColumn = (columnId: string) => {
     return allTasks
@@ -75,32 +126,20 @@ const Board: React.FC<BoardProps> = () => {
     <div className={styles.board}>
       <Header title="MyTrello" />
       <div className={styles.board__content}>
-        <div className={styles.board__columns}>
-          {columns.map(column => {
+        <div ref={boardDropRef} className={styles.board__columns}>
+          {columns.map((column, columnIndex) => {
             const columnTasks = getTasksForColumn(column.id);
 
             return (
-              <div key={column.id} className={styles.board__column}>
-                <div className={styles.board__columnHeader}>
-                  <h3 className={styles.board__columnTitle}>{column.title}</h3>
-                  <button
-                    className={styles.board__addTaskButton}
-                    onClick={() => handleAddTask(column.id)}
-                  >
-                    + Добавить задачу
-                  </button>
-                </div>
-                <div className={styles.board__columnContent}>
-                  {columnTasks.map(task => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onTaskUpdate={handleTaskUpdate}
-                      onTaskDelete={handleTaskDelete}
-                    />
-                  ))}
-                </div>
-              </div>
+              <Column
+                key={column.id}
+                column={column}
+                tasks={columnTasks}
+                onTaskUpdate={handleTaskUpdate}
+                onTaskDelete={handleTaskDelete}
+                onTaskMove={handleTaskMove}
+                onAddTask={handleAddTask}
+              />
             );
           })}
           <div className={styles.board__addColumn}>

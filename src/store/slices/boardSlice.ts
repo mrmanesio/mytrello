@@ -42,9 +42,22 @@ const loadFromLocalStorage = (): Partial<BoardState> => {
       return { columns: [], tasks: [] };
     }
     const parsedState = JSON.parse(serializedState);
+
+    // Преобразуем строки дат обратно в объекты Date
+    const tasks = (parsedState.tasks || []).map((task: any) => {
+      const createdAt = new Date(task.createdAt);
+      const updatedAt = new Date(task.updatedAt);
+
+      return {
+        ...task,
+        createdAt: isNaN(createdAt.getTime()) ? new Date() : createdAt,
+        updatedAt: isNaN(updatedAt.getTime()) ? new Date() : updatedAt,
+      };
+    });
+
     return {
       columns: parsedState.columns || [],
-      tasks: parsedState.tasks || [],
+      tasks,
     };
   } catch (error) {
     console.error('Failed to load state from localStorage:', error);
