@@ -4,6 +4,7 @@ export interface Task {
   description?: string;
   columnId: string;
   order: number;
+  completed: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

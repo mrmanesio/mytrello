@@ -4,6 +4,7 @@ import { Column, Task } from '../types';
 export interface BoardState {
   columns: Column[];
   tasks: Task[];
+  selectedTaskIds: string[]; // Добавляем массив выбранных задач
   isLoading: boolean;
   error: string | null;
 }
@@ -41,6 +42,21 @@ export interface MoveTaskPayload {
 export interface ReorderColumnsPayload {
   startIndex: number;
   endIndex: number;
+}
+
+// Новые типы для множественного выбора
+export interface BulkTaskActionPayload {
+  taskIds: string[];
+}
+
+export interface BulkMoveTasksPayload {
+  taskIds: string[];
+  destinationColumnId: string;
+}
+
+export interface BulkToggleTasksCompletedPayload {
+  taskIds: string[];
+  completed: boolean;
 }
 
 // Типы для localStorage

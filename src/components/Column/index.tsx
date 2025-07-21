@@ -15,6 +15,7 @@ interface ColumnProps {
   tasks: Task[];
   onTaskUpdate: (task: Task) => void;
   onTaskDelete: (taskId: string) => void;
+  onTaskToggleCompleted?: (taskId: string) => void;
   onTaskMove: (
     taskId: string,
     sourceColumnId: string,
@@ -28,6 +29,8 @@ interface ColumnProps {
     destinationIndex: number
   ) => void;
   onAddTask?: (columnId: string) => void;
+  selectedTaskIds?: string[];
+  onTaskSelect?: (taskId: string, isSelected: boolean) => void;
 }
 
 const Column: React.FC<ColumnProps> = ({
@@ -35,8 +38,11 @@ const Column: React.FC<ColumnProps> = ({
   tasks,
   onTaskUpdate,
   onTaskDelete,
+  onTaskToggleCompleted,
   onTaskMove,
   onAddTask,
+  selectedTaskIds = [],
+  onTaskSelect,
 }) => {
   const columnDragRef = useDraggable(column.id, 'column');
   const columnMonitorRef = useDragMonitor();
@@ -80,6 +86,9 @@ const Column: React.FC<ColumnProps> = ({
             task={task}
             onTaskUpdate={onTaskUpdate}
             onTaskDelete={onTaskDelete}
+            onTaskToggleCompleted={onTaskToggleCompleted}
+            isSelected={selectedTaskIds.includes(task.id)}
+            onTaskSelect={onTaskSelect}
           />
         ))}
       </div>

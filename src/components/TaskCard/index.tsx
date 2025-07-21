@@ -8,9 +8,30 @@ const TaskCard: React.FC<TaskCardProps> = ({
   task,
   onTaskUpdate,
   onTaskDelete,
+  onTaskToggleCompleted,
+  isSelected = false,
+  onTaskSelect,
 }) => {
   const dragRef = useDraggable(task.id, 'task', task.columnId);
   const monitorRef = useDragMonitor();
+
+  const handleToggleCompleted = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onTaskToggleCompleted?.(task.id);
+  };
+
+  const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    onTaskSelect?.(task.id, e.target.checked);
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Если нажата клавиша Ctrl или Cmd, добавляем к выбору
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      onTaskSelect?.(task.id, !isSelected);
+    }
+  };
 
   return (
     <div
@@ -18,9 +39,33 @@ const TaskCard: React.FC<TaskCardProps> = ({
         dragRef(element);
         monitorRef(element);
       }}
-      className={styles.taskCard}
+      className={`${styles.taskCard} ${task.completed ? styles.taskCard_completed : ''} ${isSelected ? styles.taskCard_selected : ''}`}
+      onClick={handleCardClick}
     >
-      <h4 className={styles.taskCard__title}>{task.title}</h4>
+      <div className={styles.taskCard__header}>
+        {onTaskSelect && (
+          <input
+            type="checkbox"
+            className={styles.taskCard__checkbox}
+            checked={isSelected}
+            onChange={handleSelect}
+            onClick={e => e.stopPropagation()}
+            title="Выбрать задачу"
+          />
+        )}
+        <button
+          className={`${styles.taskCard__toggleButton} ${task.completed ? styles.taskCard__toggleButton_completed : ''}`}
+          onClick={handleToggleCompleted}
+          title={
+            task.completed
+              ? 'Отметить как невыполненную'
+              : 'Отметить как выполненную'
+          }
+        >
+          {task.completed ? '✓' : '○'}
+        </button>
+        <h4 className={styles.taskCard__title}>{task.title}</h4>
+      </div>
       {task.description && (
         <p className={styles.taskCard__description}>{task.description}</p>
       )}

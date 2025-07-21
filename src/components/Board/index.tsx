@@ -2,23 +2,37 @@ import React from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import {
   selectColumns,
+  selectSelectedTaskIds,
   addColumn,
   addTask,
   updateTask,
   deleteTask,
+  toggleTaskCompleted,
   moveTask,
   reorderColumns,
+  selectTask,
+  deselectTask,
 } from '../../store/slices/boardSlice';
 import styles from './styles/Board.module.scss';
 import { BoardProps } from './types';
 import Header from '../Header';
 import Column from '../Column';
-import { useDropTarget, DragItem, DropLocation } from '../../hooks';
+import BulkActionPanel from '../BulkActionPanel';
+import {
+  useDropTarget,
+  DragItem,
+  DropLocation,
+  useKeyboardShortcuts,
+} from '../../hooks';
 
 const Board: React.FC<BoardProps> = () => {
   const dispatch = useAppDispatch();
   const columns = useAppSelector(selectColumns);
   const allTasks = useAppSelector(state => state.board.tasks);
+  const selectedTaskIds = useAppSelector(selectSelectedTaskIds);
+
+  // Подключаем клавиатурные сокращения
+  useKeyboardShortcuts();
 
   const handleAddColumn = () => {
     const title = prompt('Введите название колонки:');
@@ -61,6 +75,18 @@ const Board: React.FC<BoardProps> = () => {
   const handleTaskDelete = (taskId: string) => {
     if (window.confirm('Вы уверены, что хотите удалить эту задачу?')) {
       dispatch(deleteTask(taskId));
+    }
+  };
+
+  const handleTaskToggleCompleted = (taskId: string) => {
+    dispatch(toggleTaskCompleted(taskId));
+  };
+
+  const handleTaskSelect = (taskId: string, isSelected: boolean) => {
+    if (isSelected) {
+      dispatch(selectTask(taskId));
+    } else {
+      dispatch(deselectTask(taskId));
     }
   };
 
@@ -137,8 +163,11 @@ const Board: React.FC<BoardProps> = () => {
                 tasks={columnTasks}
                 onTaskUpdate={handleTaskUpdate}
                 onTaskDelete={handleTaskDelete}
+                onTaskToggleCompleted={handleTaskToggleCompleted}
                 onTaskMove={handleTaskMove}
                 onAddTask={handleAddTask}
+                selectedTaskIds={selectedTaskIds}
+                onTaskSelect={handleTaskSelect}
               />
             );
           })}
@@ -152,6 +181,7 @@ const Board: React.FC<BoardProps> = () => {
           </div>
         </div>
       </div>
+      <BulkActionPanel />
     </div>
   );
 };

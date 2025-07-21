@@ -8,6 +8,9 @@ import {
   UpdateTaskPayload,
   MoveTaskPayload,
   ReorderColumnsPayload,
+  BulkTaskActionPayload,
+  BulkMoveTasksPayload,
+  BulkToggleTasksCompletedPayload,
 } from '../types';
 
 // Используем импортированный тип
@@ -16,6 +19,7 @@ import {
 const initialState: BoardState = {
   columns: [],
   tasks: [],
+  selectedTaskIds: [], // Добавляем массив выбранных задач
   isLoading: false,
   error: null,
 };
@@ -50,6 +54,7 @@ const loadFromLocalStorage = (): Partial<BoardState> => {
 
       return {
         ...task,
+        completed: task.completed || false, // Добавляем поле completed если его нет
         createdAt: isNaN(createdAt.getTime()) ? new Date() : createdAt,
         updatedAt: isNaN(updatedAt.getTime()) ? new Date() : updatedAt,
       };
@@ -146,6 +151,7 @@ const boardSlice = createSlice({
         order: getNextOrder(
           state.tasks.filter(task => task.columnId === action.payload.columnId)
         ),
+        completed: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -182,6 +188,16 @@ const boardSlice = createSlice({
             state.tasks[taskIndex].order = index;
           }
         });
+        saveToLocalStorage(state);
+      }
+    },
+
+    toggleTaskCompleted: (state, action: PayloadAction<string>) => {
+      const taskId = action.payload;
+      const taskIndex = state.tasks.findIndex(task => task.id === taskId);
+      if (taskIndex !== -1) {
+        state.tasks[taskIndex].completed = !state.tasks[taskIndex].completed;
+        state.tasks[taskIndex].updatedAt = new Date();
         saveToLocalStorage(state);
       }
     },
@@ -275,8 +291,129 @@ const boardSlice = createSlice({
     resetBoard: state => {
       state.columns = [];
       state.tasks = [];
+      state.selectedTaskIds = [];
       state.error = null;
       localStorage.removeItem(STORAGE_KEY);
+    },
+
+    // Действия для множественного выбора задач
+    selectTask: (state, action: PayloadAction<string>) => {
+      const taskId = action.payload;
+      if (!state.selectedTaskIds.includes(taskId)) {
+        state.selectedTaskIds.push(taskId);
+      }
+    },
+
+    deselectTask: (state, action: PayloadAction<string>) => {
+      const taskId = action.payload;
+      state.selectedTaskIds = state.selectedTaskIds.filter(id => id !== taskId);
+    },
+
+    selectAllTasks: state => {
+      state.selectedTaskIds = state.tasks.map(task => task.id);
+    },
+
+    deselectAllTasks: state => {
+      state.selectedTaskIds = [];
+    },
+
+    // Множественные действия с задачами
+    bulkDeleteTasks: (state, action: PayloadAction<BulkTaskActionPayload>) => {
+      const { taskIds } = action.payload;
+
+      // Удаляем задачи
+      state.tasks = state.tasks.filter(task => !taskIds.includes(task.id));
+
+      // Очищаем выбранные задачи
+      state.selectedTaskIds = state.selectedTaskIds.filter(
+        id => !taskIds.includes(id)
+      );
+
+      // Пересчитываем порядок задач в каждой колонке
+      const columnIds = Array.from(
+        new Set(state.tasks.map(task => task.columnId))
+      );
+      columnIds.forEach(columnId => {
+        const columnTasks = state.tasks
+          .filter(task => task.columnId === columnId)
+          .sort((a, b) => a.order - b.order);
+
+        columnTasks.forEach((task, index) => {
+          const taskIndex = state.tasks.findIndex(t => t.id === task.id);
+          if (taskIndex !== -1) {
+            state.tasks[taskIndex].order = index;
+          }
+        });
+      });
+
+      saveToLocalStorage(state);
+    },
+
+    bulkMoveTasks: (state, action: PayloadAction<BulkMoveTasksPayload>) => {
+      const { taskIds, destinationColumnId } = action.payload;
+
+      // Получаем задачи для перемещения
+      const tasksToMove = state.tasks.filter(task => taskIds.includes(task.id));
+
+      // Получаем максимальный порядок в целевой колонке
+      const destinationTasks = state.tasks.filter(
+        task => task.columnId === destinationColumnId
+      );
+      const maxOrder =
+        destinationTasks.length > 0
+          ? Math.max(...destinationTasks.map(task => task.order))
+          : -1;
+
+      // Перемещаем задачи
+      tasksToMove.forEach((task, index) => {
+        const taskIndex = state.tasks.findIndex(t => t.id === task.id);
+        if (taskIndex !== -1) {
+          state.tasks[taskIndex].columnId = destinationColumnId;
+          state.tasks[taskIndex].order = maxOrder + 1 + index;
+          state.tasks[taskIndex].updatedAt = new Date();
+        }
+      });
+
+      // Пересчитываем порядок в исходных колонках
+      const sourceColumnIds = Array.from(
+        new Set(tasksToMove.map(task => task.columnId))
+      );
+      sourceColumnIds.forEach(columnId => {
+        const columnTasks = state.tasks
+          .filter(task => task.columnId === columnId)
+          .sort((a, b) => a.order - b.order);
+
+        columnTasks.forEach((task, index) => {
+          const taskIndex = state.tasks.findIndex(t => t.id === task.id);
+          if (taskIndex !== -1) {
+            state.tasks[taskIndex].order = index;
+          }
+        });
+      });
+
+      // Очищаем выбранные задачи
+      state.selectedTaskIds = state.selectedTaskIds.filter(
+        id => !taskIds.includes(id)
+      );
+
+      saveToLocalStorage(state);
+    },
+
+    bulkToggleTasksCompleted: (
+      state,
+      action: PayloadAction<BulkToggleTasksCompletedPayload>
+    ) => {
+      const { taskIds, completed } = action.payload;
+
+      taskIds.forEach(taskId => {
+        const taskIndex = state.tasks.findIndex(task => task.id === taskId);
+        if (taskIndex !== -1) {
+          state.tasks[taskIndex].completed = completed;
+          state.tasks[taskIndex].updatedAt = new Date();
+        }
+      });
+
+      saveToLocalStorage(state);
     },
   },
 });
@@ -290,11 +427,19 @@ export const {
   addTask,
   updateTask,
   deleteTask,
+  toggleTaskCompleted,
   moveTask,
   setLoading,
   setError,
   clearError,
   resetBoard,
+  selectTask,
+  deselectTask,
+  selectAllTasks,
+  deselectAllTasks,
+  bulkDeleteTasks,
+  bulkMoveTasks,
+  bulkToggleTasksCompleted,
 } = boardSlice.actions;
 
 // Селекторы
@@ -323,6 +468,21 @@ export const selectTaskById = (state: { board: BoardState }, taskId: string) =>
 export const selectIsLoading = (state: { board: BoardState }) =>
   state.board.isLoading;
 export const selectError = (state: { board: BoardState }) => state.board.error;
+
+// Селекторы для множественного выбора
+export const selectSelectedTaskIds = (state: { board: BoardState }) =>
+  state.board.selectedTaskIds;
+
+export const selectSelectedTasks = (state: { board: BoardState }) =>
+  state.board.tasks.filter(task =>
+    state.board.selectedTaskIds.includes(task.id)
+  );
+
+export const selectHasSelectedTasks = (state: { board: BoardState }) =>
+  state.board.selectedTaskIds.length > 0;
+
+export const selectSelectedTasksCount = (state: { board: BoardState }) =>
+  state.board.selectedTaskIds.length;
 
 // Экспорт reducer
 export default boardSlice.reducer;
