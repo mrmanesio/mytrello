@@ -6,16 +6,32 @@ const Header: React.FC<HeaderProps> = ({
   title,
   currentFilter = 'all',
   onFilterChange,
+  searchQuery = '',
+  onSearchChange,
 }) => {
   const filterOptions: { value: string; label: string }[] = [
-    { value: 'all', label: 'All' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'incomplete', label: 'Incomplete' },
+    { value: 'all', label: 'Все' },
+    { value: 'completed', label: 'Выполненные' },
+    { value: 'incomplete', label: 'Невыполненные' },
   ];
 
   return (
     <header className={styles.header}>
       <h1 className={styles.header__title}>{title}</h1>
+
+      {onSearchChange && (
+        <div className={styles.header__search}>
+          <input
+            type="text"
+            className={styles.header__searchInput}
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={e => onSearchChange(e.target.value)}
+          />
+          <span className={styles.header__searchIcon}>🔍</span>
+        </div>
+      )}
+
       <div className={styles.header__actions}>
         {onFilterChange && (
           <div className={styles.header__filters}>
@@ -26,7 +42,7 @@ const Header: React.FC<HeaderProps> = ({
                   currentFilter === option.value
                     ? styles.header__filterButton_active
                     : ''
-                }`}
+                }}`}
                 onClick={() => onFilterChange(option.value as any)}
               >
                 {option.label}

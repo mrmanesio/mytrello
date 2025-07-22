@@ -49,6 +49,7 @@ const ColumnWrapper: React.FC<{
   selectedTaskIds: string[];
   onTaskSelect: (taskId: string, isSelected: boolean) => void;
   onSelectAllTasksInColumn: (columnId: string) => void;
+  searchQuery?: string;
 }> = ({
   column,
   tasks,
@@ -60,6 +61,7 @@ const ColumnWrapper: React.FC<{
   selectedTaskIds,
   onTaskSelect,
   onSelectAllTasksInColumn,
+  searchQuery = '',
 }) => {
   const allTasksInColumnSelected = useAppSelector(state =>
     selectAllTasksInColumnSelected(state, column.id)
@@ -82,6 +84,7 @@ const ColumnWrapper: React.FC<{
       onSelectAllTasksInColumn={onSelectAllTasksInColumn}
       allTasksInColumnSelected={allTasksInColumnSelected}
       selectedTasksInColumnCount={selectedTasksInColumnCount}
+      searchQuery={searchQuery}
     />
   );
 };
@@ -94,12 +97,14 @@ const Board: React.FC<BoardProps> = () => {
 
   // Состояние фильтра
   const [taskFilter, setTaskFilter] = useState<TaskFilterType>('all');
+  // Состояние поиска
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Подключаем клавиатурные сокращения
   useKeyboardShortcuts();
 
-  // Функция фильтрации задач
-  const filterTasks = (tasks: any[]) => {
+  // Функция фильтрации задач по статусу
+  const filterTasksByStatus = (tasks: any[]) => {
     switch (taskFilter) {
       case 'completed':
         return tasks.filter(task => task.completed);
@@ -108,6 +113,22 @@ const Board: React.FC<BoardProps> = () => {
       default:
         return tasks;
     }
+  };
+
+  // Функция фильтрации задач по поиску
+  const filterTasksBySearch = (tasks: any[]) => {
+    if (!searchQuery.trim()) {
+      return tasks;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return tasks.filter(task => task.title.toLowerCase().includes(query));
+  };
+
+  // Комбинированная функция фильтрации
+  const filterTasks = (tasks: any[]) => {
+    const statusFiltered = filterTasksByStatus(tasks);
+    return filterTasksBySearch(statusFiltered);
   };
 
   const handleAddColumn = () => {
@@ -244,6 +265,8 @@ const Board: React.FC<BoardProps> = () => {
         title="MyTrello"
         currentFilter={taskFilter}
         onFilterChange={setTaskFilter}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
       <div className={styles.board__content}>
         <div ref={boardDropRef} className={styles.board__columns}>
@@ -263,6 +286,7 @@ const Board: React.FC<BoardProps> = () => {
                 selectedTaskIds={selectedTaskIds}
                 onTaskSelect={handleTaskSelect}
                 onSelectAllTasksInColumn={handleSelectAllTasksInColumn}
+                searchQuery={searchQuery}
               />
             );
           })}

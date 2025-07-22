@@ -6,4 +6,6 @@ export interface HeaderProps {
   onAddClick?: () => void;
   currentFilter?: TaskFilterType;
   onFilterChange?: (filter: TaskFilterType) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }

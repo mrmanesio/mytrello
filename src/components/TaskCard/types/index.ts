@@ -7,4 +7,5 @@ export interface TaskCardProps {
   onTaskToggleCompleted?: (taskId: string) => void;
   isSelected?: boolean;
   onTaskSelect?: (taskId: string, isSelected: boolean) => void;
+  searchQuery?: string;
 }

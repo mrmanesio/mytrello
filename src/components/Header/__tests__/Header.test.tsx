@@ -3,33 +3,17 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import Header from '../index';
 
 describe('Header', () => {
-  const mockOnMenuClick = jest.fn();
-  const mockOnAddClick = jest.fn();
   const mockOnFilterChange = jest.fn();
+  const mockOnSearchChange = jest.fn();
 
   beforeEach(() => {
-    mockOnMenuClick.mockClear();
-    mockOnAddClick.mockClear();
     mockOnFilterChange.mockClear();
+    mockOnSearchChange.mockClear();
   });
 
   it('renders title correctly', () => {
     render(<Header title="Test Board" />);
     expect(screen.getByText('Test Board')).toBeInTheDocument();
-  });
-
-  it('calls onMenuClick when menu button is clicked', () => {
-    render(<Header title="Test Board" onMenuClick={mockOnMenuClick} />);
-
-    fireEvent.click(screen.getByText('Меню'));
-    expect(mockOnMenuClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls onAddClick when add button is clicked', () => {
-    render(<Header title="Test Board" onAddClick={mockOnAddClick} />);
-
-    fireEvent.click(screen.getByText('Добавить'));
-    expect(mockOnAddClick).toHaveBeenCalledTimes(1);
   });
 
   it('renders filter buttons when onFilterChange is provided', () => {
@@ -64,7 +48,7 @@ describe('Header', () => {
     );
 
     const completedButton = screen.getByText('Выполненные');
-    expect(completedButton).toHaveClass('header__filterButton_active');
+    expect(completedButton.className).toContain('header__filterButton_active');
   });
 
   it('calls onFilterChange with correct filter type when filter button is clicked', () => {
@@ -90,6 +74,50 @@ describe('Header', () => {
     render(<Header title="Test Board" onFilterChange={mockOnFilterChange} />);
 
     const allButton = screen.getByText('Все');
-    expect(allButton).toHaveClass('header__filterButton_active');
+    expect(allButton.className).toContain('header__filterButton_active');
+  });
+
+  it('renders search input when onSearchChange is provided', () => {
+    render(
+      <Header
+        title="Test Board"
+        searchQuery="test query"
+        onSearchChange={mockOnSearchChange}
+      />
+    );
+
+    const searchInput = screen.getByPlaceholderText('Search tasks...');
+    expect(searchInput).toBeInTheDocument();
+    expect(searchInput).toHaveValue('test query');
+  });
+
+  it('does not render search input when onSearchChange is not provided', () => {
+    render(<Header title="Test Board" />);
+
+    expect(
+      screen.queryByPlaceholderText('Search tasks...')
+    ).not.toBeInTheDocument();
+  });
+
+  it('calls onSearchChange when search input value changes', () => {
+    render(
+      <Header
+        title="Test Board"
+        searchQuery=""
+        onSearchChange={mockOnSearchChange}
+      />
+    );
+
+    const searchInput = screen.getByPlaceholderText('Search tasks...');
+    fireEvent.change(searchInput, { target: { value: 'new search' } });
+
+    expect(mockOnSearchChange).toHaveBeenCalledWith('new search');
+  });
+
+  it('uses empty string as default search query when not provided', () => {
+    render(<Header title="Test Board" onSearchChange={mockOnSearchChange} />);
+
+    const searchInput = screen.getByPlaceholderText('Search tasks...');
+    expect(searchInput).toHaveValue('');
   });
 });

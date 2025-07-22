@@ -1,8 +1,38 @@
 import React from 'react';
+import { useDraggable, useDragMonitor } from '../../hooks';
+import { Task } from '../../types';
 import styles from './styles/TaskCard.module.scss';
 import { TaskCardProps } from './types';
-import { formatDate } from '../../utils';
-import { useDraggable, useDragMonitor } from '../../hooks';
+
+// Компонент для подсветки совпадающего текста
+const HighlightedText: React.FC<{ text: string; searchQuery: string }> = ({
+  text,
+  searchQuery,
+}) => {
+  if (!searchQuery.trim()) {
+    return <>{text}</>;
+  }
+
+  const query = searchQuery.toLowerCase();
+  const lowerText = text.toLowerCase();
+  const index = lowerText.indexOf(query);
+
+  if (index === -1) {
+    return <>{text}</>;
+  }
+
+  const before = text.substring(0, index);
+  const match = text.substring(index, index + query.length);
+  const after = text.substring(index + query.length);
+
+  return (
+    <>
+      {before}
+      <mark className={styles.taskCard__highlight}>{match}</mark>
+      {after}
+    </>
+  );
+};
 
 const TaskCard: React.FC<TaskCardProps> = ({
   task,
@@ -11,13 +41,20 @@ const TaskCard: React.FC<TaskCardProps> = ({
   onTaskToggleCompleted,
   isSelected = false,
   onTaskSelect,
+  searchQuery = '',
 }) => {
   const dragRef = useDraggable(task.id, 'task', task.columnId);
   const monitorRef = useDragMonitor();
 
-  const handleToggleCompleted = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onTaskToggleCompleted?.(task.id);
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Не вызываем onTaskSelect если клик был на чекбоксе или кнопке
+    if (
+      (e.target as HTMLElement).closest('input[type="checkbox"]') ||
+      (e.target as HTMLElement).closest('button')
+    ) {
+      return;
+    }
+    onTaskSelect?.(task.id, !isSelected);
   };
 
   const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,12 +62,17 @@ const TaskCard: React.FC<TaskCardProps> = ({
     onTaskSelect?.(task.id, e.target.checked);
   };
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Если нажата клавиша Ctrl или Cmd, добавляем к выбору
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      onTaskSelect?.(task.id, !isSelected);
-    }
+  const handleToggleCompleted = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onTaskToggleCompleted?.(task.id);
+  };
+
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('ru-RU', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(date);
   };
 
   return (
@@ -60,7 +102,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
         >
           {task.completed ? '✓' : '○'}
         </button>
-        <h4 className={styles.taskCard__title}>{task.title}</h4>
+        <h4 className={styles.taskCard__title}>
+          <HighlightedText text={task.title} searchQuery={searchQuery} />
+        </h4>
       </div>
       {task.description && (
         <p className={styles.taskCard__description}>{task.description}</p>

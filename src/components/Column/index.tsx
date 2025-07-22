@@ -34,6 +34,7 @@ interface ColumnProps {
   onSelectAllTasksInColumn?: (columnId: string) => void;
   allTasksInColumnSelected?: boolean;
   selectedTasksInColumnCount?: number;
+  searchQuery?: string;
 }
 
 const Column: React.FC<ColumnProps> = ({
@@ -49,6 +50,7 @@ const Column: React.FC<ColumnProps> = ({
   onSelectAllTasksInColumn,
   allTasksInColumnSelected = false,
   selectedTasksInColumnCount = 0,
+  searchQuery = '',
 }) => {
   const columnDragRef = useDraggable(column.id, 'column');
   const columnMonitorRef = useDragMonitor();
@@ -121,6 +123,7 @@ const Column: React.FC<ColumnProps> = ({
             onTaskToggleCompleted={onTaskToggleCompleted}
             isSelected={selectedTaskIds.includes(task.id)}
             onTaskSelect={onTaskSelect}
+            searchQuery={searchQuery}
           />
         ))}
       </div>
