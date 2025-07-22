@@ -31,6 +31,9 @@ interface ColumnProps {
   onAddTask?: (columnId: string) => void;
   selectedTaskIds?: string[];
   onTaskSelect?: (taskId: string, isSelected: boolean) => void;
+  onSelectAllTasksInColumn?: (columnId: string) => void;
+  allTasksInColumnSelected?: boolean;
+  selectedTasksInColumnCount?: number;
 }
 
 const Column: React.FC<ColumnProps> = ({
@@ -43,6 +46,9 @@ const Column: React.FC<ColumnProps> = ({
   onAddTask,
   selectedTaskIds = [],
   onTaskSelect,
+  onSelectAllTasksInColumn,
+  allTasksInColumnSelected = false,
+  selectedTasksInColumnCount = 0,
 }) => {
   const columnDragRef = useDraggable(column.id, 'column');
   const columnMonitorRef = useDragMonitor();
@@ -76,8 +82,34 @@ const Column: React.FC<ColumnProps> = ({
       data-column-id={column.id}
     >
       <div className={styles.column__header}>
-        <h3 className={styles.column__title}>{column.title}</h3>
-        <span className={styles.column__taskCount}>{tasks.length}</span>
+        <div className={styles.column__headerTop}>
+          <h3 className={styles.column__title}>{column.title}</h3>
+          <span className={styles.column__taskCount}>{tasks.length}</span>
+        </div>
+        {onSelectAllTasksInColumn && tasks.length > 0 && (
+          <div className={styles.column__selectAllContainer}>
+            <button
+              className={`${styles.column__selectAllButton} ${
+                allTasksInColumnSelected
+                  ? styles.column__selectAllButton_selected
+                  : ''
+              }`}
+              onClick={() => onSelectAllTasksInColumn(column.id)}
+              title={
+                allTasksInColumnSelected
+                  ? 'Отменить выбор всех задач'
+                  : 'Выбрать все задачи в колонке'
+              }
+            >
+              {allTasksInColumnSelected ? '✓' : '☐'} Выбрать все
+              {selectedTasksInColumnCount > 0 && (
+                <span className={styles.column__selectedCount}>
+                  ({selectedTasksInColumnCount})
+                </span>
+              )}
+            </button>
+          </div>
+        )}
       </div>
       <div className={styles.column__content}>
         {tasks.map((task, index) => (

@@ -1,8 +1,11 @@
 import React from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { store } from '../../store';
 import {
   selectColumns,
   selectSelectedTaskIds,
+  selectAllTasksInColumnSelected,
+  selectSelectedTasksInColumnCount,
   addColumn,
   addTask,
   updateTask,
@@ -12,6 +15,8 @@ import {
   reorderColumns,
   selectTask,
   deselectTask,
+  selectAllTasksInColumn,
+  deselectAllTasksInColumn,
 } from '../../store/slices/boardSlice';
 import styles from './styles/Board.module.scss';
 import { BoardProps } from './types';
@@ -24,6 +29,61 @@ import {
   DropLocation,
   useKeyboardShortcuts,
 } from '../../hooks';
+
+// Компонент-обертка для Column с селекторами
+const ColumnWrapper: React.FC<{
+  column: any;
+  tasks: any[];
+  onTaskUpdate: (task: any) => void;
+  onTaskDelete: (taskId: string) => void;
+  onTaskToggleCompleted?: (taskId: string) => void;
+  onTaskMove: (
+    taskId: string,
+    sourceColumnId: string,
+    destinationColumnId: string,
+    sourceIndex: number,
+    destinationIndex: number
+  ) => void;
+  onAddTask?: (columnId: string) => void;
+  selectedTaskIds: string[];
+  onTaskSelect: (taskId: string, isSelected: boolean) => void;
+  onSelectAllTasksInColumn: (columnId: string) => void;
+}> = ({
+  column,
+  tasks,
+  onTaskUpdate,
+  onTaskDelete,
+  onTaskToggleCompleted,
+  onTaskMove,
+  onAddTask,
+  selectedTaskIds,
+  onTaskSelect,
+  onSelectAllTasksInColumn,
+}) => {
+  const allTasksInColumnSelected = useAppSelector(state =>
+    selectAllTasksInColumnSelected(state, column.id)
+  );
+  const selectedTasksInColumnCount = useAppSelector(state =>
+    selectSelectedTasksInColumnCount(state, column.id)
+  );
+
+  return (
+    <Column
+      column={column}
+      tasks={tasks}
+      onTaskUpdate={onTaskUpdate}
+      onTaskDelete={onTaskDelete}
+      onTaskToggleCompleted={onTaskToggleCompleted}
+      onTaskMove={onTaskMove}
+      onAddTask={onAddTask}
+      selectedTaskIds={selectedTaskIds}
+      onTaskSelect={onTaskSelect}
+      onSelectAllTasksInColumn={onSelectAllTasksInColumn}
+      allTasksInColumnSelected={allTasksInColumnSelected}
+      selectedTasksInColumnCount={selectedTasksInColumnCount}
+    />
+  );
+};
 
 const Board: React.FC<BoardProps> = () => {
   const dispatch = useAppDispatch();
@@ -87,6 +147,18 @@ const Board: React.FC<BoardProps> = () => {
       dispatch(selectTask(taskId));
     } else {
       dispatch(deselectTask(taskId));
+    }
+  };
+
+  const handleSelectAllTasksInColumn = (columnId: string) => {
+    const allSelected = selectAllTasksInColumnSelected(
+      { board: store.getState().board },
+      columnId
+    );
+    if (allSelected) {
+      dispatch(deselectAllTasksInColumn(columnId));
+    } else {
+      dispatch(selectAllTasksInColumn(columnId));
     }
   };
 
@@ -157,7 +229,7 @@ const Board: React.FC<BoardProps> = () => {
             const columnTasks = getTasksForColumn(column.id);
 
             return (
-              <Column
+              <ColumnWrapper
                 key={column.id}
                 column={column}
                 tasks={columnTasks}
@@ -168,6 +240,7 @@ const Board: React.FC<BoardProps> = () => {
                 onAddTask={handleAddTask}
                 selectedTaskIds={selectedTaskIds}
                 onTaskSelect={handleTaskSelect}
+                onSelectAllTasksInColumn={handleSelectAllTasksInColumn}
               />
             );
           })}

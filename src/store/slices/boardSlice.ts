@@ -313,8 +313,32 @@ const boardSlice = createSlice({
       state.selectedTaskIds = state.tasks.map(task => task.id);
     },
 
+    selectAllTasksInColumn: (state, action: PayloadAction<string>) => {
+      const columnId = action.payload;
+      const columnTaskIds = state.tasks
+        .filter(task => task.columnId === columnId)
+        .map(task => task.id);
+
+      // Добавляем только те задачи, которые еще не выбраны
+      columnTaskIds.forEach(taskId => {
+        if (!state.selectedTaskIds.includes(taskId)) {
+          state.selectedTaskIds.push(taskId);
+        }
+      });
+    },
+
     deselectAllTasks: state => {
       state.selectedTaskIds = [];
+    },
+
+    deselectAllTasksInColumn: (state, action: PayloadAction<string>) => {
+      const columnId = action.payload;
+      const columnTaskIds = state.tasks
+        .filter(task => task.columnId === columnId)
+        .map(task => task.id);
+      state.selectedTaskIds = state.selectedTaskIds.filter(
+        id => !columnTaskIds.includes(id)
+      );
     },
 
     // Множественные действия с задачами
@@ -436,6 +460,8 @@ export const {
   selectTask,
   deselectTask,
   selectAllTasks,
+  selectAllTasksInColumn,
+  deselectAllTasksInColumn,
   deselectAllTasks,
   bulkDeleteTasks,
   bulkMoveTasks,
@@ -483,6 +509,33 @@ export const selectHasSelectedTasks = (state: { board: BoardState }) =>
 
 export const selectSelectedTasksCount = (state: { board: BoardState }) =>
   state.board.selectedTaskIds.length;
+
+export const selectAllTasksInColumnSelected = (
+  state: { board: BoardState },
+  columnId: string
+) => {
+  const columnTasks = state.board.tasks.filter(
+    task => task.columnId === columnId
+  );
+  const selectedColumnTasks = columnTasks.filter(task =>
+    state.board.selectedTaskIds.includes(task.id)
+  );
+  return (
+    columnTasks.length > 0 && columnTasks.length === selectedColumnTasks.length
+  );
+};
+
+export const selectSelectedTasksInColumnCount = (
+  state: { board: BoardState },
+  columnId: string
+) => {
+  const columnTasks = state.board.tasks.filter(
+    task => task.columnId === columnId
+  );
+  return columnTasks.filter(task =>
+    state.board.selectedTaskIds.includes(task.id)
+  ).length;
+};
 
 // Экспорт reducer
 export default boardSlice.reducer;

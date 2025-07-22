@@ -16,11 +16,17 @@
 
   &__header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     margin-bottom: 12px;
     padding-bottom: 8px;
     border-bottom: 1px solid #e1e5e9;
+  }
+
+  &__headerTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
   }
 
   &__title {
@@ -72,6 +78,42 @@
       border-color: #a5adba;
       color: #172b4d;
     }
+  }
+
+  &__selectAllContainer {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  &__selectAllButton {
+    background: transparent;
+    border: 1px solid #c1c7d0;
+    border-radius: 4px;
+    color: #42526e;
+    font-size: 12px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &:hover {
+      background: #f8f9fa;
+      border-color: #a5adba;
+      color: #172b4d;
+    }
+
+    &_selected {
+      background: #e3f2fd;
+      border-color: #2196f3;
+      color: #1976d2;
+    }
+  }
+
+  &__selectedCount {
+    font-size: 11px;
+    color: #6b778c;
   }
 
   // Drop zone styles

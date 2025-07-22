@@ -14,6 +14,7 @@ export interface Column {
   title: string;
   order: number;
   boardId: string;
+  selected?: boolean;
 }
 
 export interface Board {
