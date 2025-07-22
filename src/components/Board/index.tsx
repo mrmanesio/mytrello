@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { store } from '../../store';
 import {
@@ -23,6 +23,7 @@ import { BoardProps } from './types';
 import Header from '../Header';
 import Column from '../Column';
 import BulkActionPanel from '../BulkActionPanel';
+import { TaskFilterType } from '../../types';
 import {
   useDropTarget,
   DragItem,
@@ -91,8 +92,23 @@ const Board: React.FC<BoardProps> = () => {
   const allTasks = useAppSelector(state => state.board.tasks);
   const selectedTaskIds = useAppSelector(selectSelectedTaskIds);
 
+  // Состояние фильтра
+  const [taskFilter, setTaskFilter] = useState<TaskFilterType>('all');
+
   // Подключаем клавиатурные сокращения
   useKeyboardShortcuts();
+
+  // Функция фильтрации задач
+  const filterTasks = (tasks: any[]) => {
+    switch (taskFilter) {
+      case 'completed':
+        return tasks.filter(task => task.completed);
+      case 'incomplete':
+        return tasks.filter(task => !task.completed);
+      default:
+        return tasks;
+    }
+  };
 
   const handleAddColumn = () => {
     const title = prompt('Введите название колонки:');
@@ -215,14 +231,20 @@ const Board: React.FC<BoardProps> = () => {
   const boardDropRef = useDropTarget(handleColumnDrop);
 
   const getTasksForColumn = (columnId: string) => {
-    return allTasks
+    const columnTasks = allTasks
       .filter(task => task.columnId === columnId)
       .sort((a, b) => a.order - b.order);
+
+    return filterTasks(columnTasks);
   };
 
   return (
     <div className={styles.board}>
-      <Header title="MyTrello" />
+      <Header
+        title="MyTrello"
+        currentFilter={taskFilter}
+        onFilterChange={setTaskFilter}
+      />
       <div className={styles.board__content}>
         <div ref={boardDropRef} className={styles.board__columns}>
           {columns.map((column, columnIndex) => {
