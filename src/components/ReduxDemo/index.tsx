@@ -56,7 +56,7 @@ const ReduxDemo: React.FC = () => {
   };
 
   const handleResetBoard = () => {
-    if (window.confirm('Вы уверены, что хотите сбросить все данные?')) {
+    if (window.confirm('Are you sure you want to reset all data?')) {
       dispatch(resetBoard());
     }
   };
@@ -66,33 +66,33 @@ const ReduxDemo: React.FC = () => {
       <h2>Redux Store Demo</h2>
 
       <div className={styles.demo__stats}>
-        <p>Колонок: {columns.length}</p>
-        <p>Задач: {tasks.length}</p>
+        <p>Columns: {columns.length}</p>
+        <p>Tasks: {tasks.length}</p>
       </div>
 
       <div className={styles.demo__controls}>
         <div className={styles.demo__section}>
-          <h3>Добавить колонку</h3>
+          <h3>Add Column</h3>
           <input
             type="text"
             value={newColumnTitle}
             onChange={e => setNewColumnTitle(e.target.value)}
-            placeholder="Название колонки"
+            placeholder="Column name"
             className={styles.demo__input}
           />
           <button onClick={handleAddColumn} className={styles.demo__button}>
-            Добавить колонку
+            Add Column
           </button>
         </div>
 
         <div className={styles.demo__section}>
-          <h3>Добавить задачу</h3>
+          <h3>Add Task</h3>
           <select
             value={selectedColumnId}
             onChange={e => setSelectedColumnId(e.target.value)}
             className={styles.demo__select}
           >
-            <option value="">Выберите колонку</option>
+            <option value="">Select a column</option>
             {columns.map(column => (
               <option key={column.id} value={column.id}>
                 {column.title}
@@ -103,18 +103,18 @@ const ReduxDemo: React.FC = () => {
             type="text"
             value={newTaskTitle}
             onChange={e => setNewTaskTitle(e.target.value)}
-            placeholder="Название задачи"
+            placeholder="Task name"
             className={styles.demo__input}
           />
           <input
             type="text"
             value={newTaskDescription}
             onChange={e => setNewTaskDescription(e.target.value)}
-            placeholder="Описание задачи"
+            placeholder="Task description"
             className={styles.demo__input}
           />
           <button onClick={handleAddTask} className={styles.demo__button}>
-            Добавить задачу
+            Add Task
           </button>
         </div>
 
@@ -123,16 +123,16 @@ const ReduxDemo: React.FC = () => {
             onClick={handleResetBoard}
             className={styles.demo__button_danger}
           >
-            Сбросить все данные
+            Reset all data
           </button>
         </div>
       </div>
 
       <div className={styles.demo__content}>
-        <h3>Текущее состояние</h3>
+        <h3>Current State</h3>
 
         {columns.length === 0 ? (
-          <p>Нет колонок. Добавьте первую колонку!</p>
+          <p>No columns. Add your first column!</p>
         ) : (
           <div className={styles.demo__columns}>
             {columns.map(column => {
@@ -152,7 +152,7 @@ const ReduxDemo: React.FC = () => {
                   </div>
 
                   {columnTasks.length === 0 ? (
-                    <p className={styles.demo__empty}>Нет задач</p>
+                    <p className={styles.demo__empty}>No tasks</p>
                   ) : (
                     <div className={styles.demo__tasks}>
                       {columnTasks.map(task => (
@@ -161,7 +161,7 @@ const ReduxDemo: React.FC = () => {
                             <h5>{task.title}</h5>
                             {task.description && <p>{task.description}</p>}
                             <small>
-                              Создано:{' '}
+                              Created:{' '}
                               {new Date(task.createdAt).toLocaleDateString()}
                             </small>
                           </div>

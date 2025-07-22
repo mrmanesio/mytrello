@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Header from '../index';
-import { TaskFilterType } from '../../../types';
 
 describe('Header', () => {
   const mockOnMenuClick = jest.fn();
@@ -19,32 +18,15 @@ describe('Header', () => {
     expect(screen.getByText('Test Board')).toBeInTheDocument();
   });
 
-  it('renders menu and add buttons when callbacks are provided', () => {
-    render(
-      <Header
-        title="Test Board"
-        onMenuClick={mockOnMenuClick}
-        onAddClick={mockOnAddClick}
-      />
-    );
-
-    expect(screen.getByText('Меню')).toBeInTheDocument();
-    expect(screen.getByText('Добавить')).toBeInTheDocument();
-  });
-
   it('calls onMenuClick when menu button is clicked', () => {
-    render(
-      <Header title="Test Board" onMenuClick={mockOnMenuClick} />
-    );
+    render(<Header title="Test Board" onMenuClick={mockOnMenuClick} />);
 
     fireEvent.click(screen.getByText('Меню'));
     expect(mockOnMenuClick).toHaveBeenCalledTimes(1);
   });
 
   it('calls onAddClick when add button is clicked', () => {
-    render(
-      <Header title="Test Board" onAddClick={mockOnAddClick} />
-    );
+    render(<Header title="Test Board" onAddClick={mockOnAddClick} />);
 
     fireEvent.click(screen.getByText('Добавить'));
     expect(mockOnAddClick).toHaveBeenCalledTimes(1);
@@ -105,14 +87,9 @@ describe('Header', () => {
   });
 
   it('uses default filter value when currentFilter is not provided', () => {
-    render(
-      <Header
-        title="Test Board"
-        onFilterChange={mockOnFilterChange}
-      />
-    );
+    render(<Header title="Test Board" onFilterChange={mockOnFilterChange} />);
 
     const allButton = screen.getByText('Все');
     expect(allButton).toHaveClass('header__filterButton_active');
   });
-}); 
+});

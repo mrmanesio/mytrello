@@ -4,15 +4,13 @@ import { HeaderProps } from './types';
 
 const Header: React.FC<HeaderProps> = ({
   title,
-  onMenuClick,
-  onAddClick,
   currentFilter = 'all',
   onFilterChange,
 }) => {
   const filterOptions: { value: string; label: string }[] = [
-    { value: 'all', label: 'Все' },
-    { value: 'completed', label: 'Выполненные' },
-    { value: 'incomplete', label: 'Невыполненные' },
+    { value: 'all', label: 'All' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'incomplete', label: 'Incomplete' },
   ];
 
   return (
@@ -36,17 +34,6 @@ const Header: React.FC<HeaderProps> = ({
             ))}
           </div>
         )}
-        <button
-          className={`${styles.header__button} ${
-            styles['header__button--secondary']
-          }`}
-          onClick={onMenuClick}
-        >
-          Меню
-        </button>
-        <button className={styles.header__button} onClick={onAddClick}>
-          Добавить
-        </button>
       </div>
     </header>
   );

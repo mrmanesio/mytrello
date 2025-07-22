@@ -50,17 +50,13 @@ const TaskCard: React.FC<TaskCardProps> = ({
             checked={isSelected}
             onChange={handleSelect}
             onClick={e => e.stopPropagation()}
-            title="Выбрать задачу"
+            title="Select task"
           />
         )}
         <button
           className={`${styles.taskCard__toggleButton} ${task.completed ? styles.taskCard__toggleButton_completed : ''}`}
           onClick={handleToggleCompleted}
-          title={
-            task.completed
-              ? 'Отметить как невыполненную'
-              : 'Отметить как выполненную'
-          }
+          title={task.completed ? 'Mark as incomplete' : 'Mark as completed'}
         >
           {task.completed ? '✓' : '○'}
         </button>

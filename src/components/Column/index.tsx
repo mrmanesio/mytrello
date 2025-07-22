@@ -97,11 +97,11 @@ const Column: React.FC<ColumnProps> = ({
               onClick={() => onSelectAllTasksInColumn(column.id)}
               title={
                 allTasksInColumnSelected
-                  ? 'Отменить выбор всех задач'
-                  : 'Выбрать все задачи в колонке'
+                  ? 'Deselect all tasks'
+                  : 'Select all tasks in column'
               }
             >
-              {allTasksInColumnSelected ? '✓' : '☐'} Выбрать все
+              {allTasksInColumnSelected ? '✓' : '☐'} Select all
               {selectedTasksInColumnCount > 0 && (
                 <span className={styles.column__selectedCount}>
                   ({selectedTasksInColumnCount})
@@ -130,7 +130,7 @@ const Column: React.FC<ColumnProps> = ({
             className={styles.column__addTaskButton}
             onClick={() => onAddTask(column.id)}
           >
-            + Добавить задачу
+            + Add task
           </button>
         </div>
       )}

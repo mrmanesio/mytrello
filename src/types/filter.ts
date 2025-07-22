@@ -1,1 +1,1 @@
-export type TaskFilterType = 'all' | 'completed' | 'incomplete'; 
+export type TaskFilterType = 'all' | 'completed' | 'incomplete';

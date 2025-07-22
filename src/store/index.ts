@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import boardReducer from './slices/boardSlice';
 
-// Конфигурация store
+// Store configuration
 export const store = configureStore({
   reducer: {
     board: boardReducer,
@@ -9,7 +9,7 @@ export const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
-        // Игнорируем проверку сериализации для Date объектов
+        // Ignore serialization check for Date objects
         ignoredActions: [
           'board/addTask',
           'board/updateTask',
@@ -20,6 +20,6 @@ export const store = configureStore({
     }),
 });
 
-// Типы для TypeScript
+// Types for TypeScript
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

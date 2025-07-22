@@ -111,7 +111,7 @@ const Board: React.FC<BoardProps> = () => {
   };
 
   const handleAddColumn = () => {
-    const title = prompt('Введите название колонки:');
+    const title = prompt('Enter column name:');
     if (title?.trim()) {
       dispatch(
         addColumn({
@@ -123,7 +123,7 @@ const Board: React.FC<BoardProps> = () => {
   };
 
   const handleAddTask = (columnId: string) => {
-    const title = prompt('Введите название задачи:');
+    const title = prompt('Enter task name:');
     if (title?.trim()) {
       dispatch(
         addTask({
@@ -135,7 +135,7 @@ const Board: React.FC<BoardProps> = () => {
   };
 
   const handleTaskUpdate = (task: any) => {
-    const newTitle = prompt('Введите новое название задачи:', task.title);
+    const newTitle = prompt('Enter new task name:', task.title);
     if (newTitle?.trim() && newTitle !== task.title) {
       dispatch(
         updateTask({
@@ -149,7 +149,7 @@ const Board: React.FC<BoardProps> = () => {
   };
 
   const handleTaskDelete = (taskId: string) => {
-    if (window.confirm('Вы уверены, что хотите удалить эту задачу?')) {
+    if (window.confirm('Are you sure you want to delete this task?')) {
       dispatch(deleteTask(taskId));
     }
   };
@@ -271,7 +271,7 @@ const Board: React.FC<BoardProps> = () => {
               className={styles.board__addColumnButton}
               onClick={handleAddColumn}
             >
-              + Добавить колонку
+              + Add Column
             </button>
           </div>
         </div>

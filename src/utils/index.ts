@@ -9,7 +9,7 @@ export const formatDate = (date: Date | string): string => {
 
     // Проверяем, что дата валидна
     if (!dateObj || isNaN(dateObj.getTime())) {
-      return 'Неизвестная дата';
+      return 'Unknown date';
     }
 
     return new Intl.DateTimeFormat('ru-RU', {
@@ -19,7 +19,7 @@ export const formatDate = (date: Date | string): string => {
     }).format(dateObj);
   } catch (error) {
     console.error('Error formatting date:', error);
-    return 'Неизвестная дата';
+    return 'Unknown date';
   }
 };
 

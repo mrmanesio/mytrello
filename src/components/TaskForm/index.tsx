@@ -22,7 +22,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   return (
     <form className={styles.taskForm} onSubmit={handleSubmit}>
       <h3 className={styles.taskForm__title}>
-        {isEditing ? 'Редактировать задачу' : 'Создать задачу'}
+        {isEditing ? 'Edit task' : 'Create task'}
       </h3>
 
       <div className={styles.taskForm__field}>
@@ -35,7 +35,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
           className={styles.taskForm__input}
           value={title}
           onChange={e => setTitle(e.target.value)}
-          placeholder="Введите название задачи"
+          placeholder="Enter task name"
           required
         />
       </div>
@@ -49,7 +49,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
           className={styles.taskForm__textarea}
           value={description}
           onChange={e => setDescription(e.target.value)}
-          placeholder="Введите описание задачи (необязательно)"
+          placeholder="Enter task description (optional)"
         />
       </div>
 
@@ -65,7 +65,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
           type="submit"
           className={`${styles.taskForm__button} ${styles['taskForm__button--primary']}`}
         >
-          {isEditing ? 'Сохранить' : 'Создать'}
+          {isEditing ? 'Save' : 'Create'}
         </button>
       </div>
     </form>

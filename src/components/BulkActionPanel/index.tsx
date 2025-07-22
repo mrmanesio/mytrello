@@ -66,7 +66,7 @@ const BulkActionPanel: React.FC = () => {
     <div className={styles.bulkActionPanel}>
       <div className={styles.bulkActionPanel__info}>
         <span className={styles.bulkActionPanel__count}>
-          Выбрано задач: {selectedCount}
+          Selected tasks: {selectedCount}
         </span>
         <div className={styles.bulkActionPanel__shortcuts}>
           <span className={styles.bulkActionPanel__shortcut}>Ctrl+A</span>
@@ -75,7 +75,7 @@ const BulkActionPanel: React.FC = () => {
         <button
           className={styles.bulkActionPanel__closeButton}
           onClick={handleClose}
-          title="Отменить выбор"
+          title="Deselect"
         >
           ✕
         </button>
@@ -85,30 +85,26 @@ const BulkActionPanel: React.FC = () => {
         <button
           className={`${styles.bulkActionPanel__actionButton} ${styles.bulkActionPanel__actionButton_danger}`}
           onClick={handleDelete}
-          title="Удалить выбранные задачи"
+          title="Delete selected tasks"
         >
-          🗑️ Удалить
+          🗑️ Delete
         </button>
 
         <button
           className={styles.bulkActionPanel__actionButton}
           onClick={handleToggleCompleted}
-          title={
-            allCompleted
-              ? 'Отметить как невыполненные'
-              : 'Отметить как выполненные'
-          }
+          title={allCompleted ? 'Mark as incomplete' : 'Mark as completed'}
         >
-          {allCompleted ? '○ Отменить выполнение' : '✓ Отметить выполнеными'}
+          {allCompleted ? '○ Unmark as completed' : '✓ Mark as completed'}
         </button>
 
         <div className={styles.bulkActionPanel__moveContainer}>
           <button
             className={styles.bulkActionPanel__actionButton}
             onClick={() => setIsMoveMenuOpen(!isMoveMenuOpen)}
-            title="Переместить в другую колонку"
+            title="Move to another column"
           >
-            📁 Переместить
+            📁 Move
           </button>
 
           {isMoveMenuOpen && (

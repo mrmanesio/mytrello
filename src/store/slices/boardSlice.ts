@@ -13,18 +13,18 @@ import {
   BulkToggleTasksCompletedPayload,
 } from '../types';
 
-// Используем импортированный тип
+// Using imported type
 
-// Начальное состояние
+// Initial state
 const initialState: BoardState = {
   columns: [],
   tasks: [],
-  selectedTaskIds: [], // Добавляем массив выбранных задач
+  selectedTaskIds: [], // Array of selected tasks
   isLoading: false,
   error: null,
 };
 
-// Утилиты для работы с localStorage
+// Utilities for working with localStorage
 const STORAGE_KEY = 'mytrello_board_state';
 
 const saveToLocalStorage = (state: BoardState) => {
@@ -47,14 +47,14 @@ const loadFromLocalStorage = (): Partial<BoardState> => {
     }
     const parsedState = JSON.parse(serializedState);
 
-    // Преобразуем строки дат обратно в объекты Date
+    // Convert date strings back to Date objects
     const tasks = (parsedState.tasks || []).map((task: any) => {
       const createdAt = new Date(task.createdAt);
       const updatedAt = new Date(task.updatedAt);
 
       return {
         ...task,
-        completed: task.completed || false, // Добавляем поле completed если его нет
+        completed: task.completed || false, // Add completed field if it doesn't exist
         createdAt: isNaN(createdAt.getTime()) ? new Date() : createdAt,
         updatedAt: isNaN(updatedAt.getTime()) ? new Date() : updatedAt,
       };
@@ -70,7 +70,7 @@ const loadFromLocalStorage = (): Partial<BoardState> => {
   }
 };
 
-// Утилиты для работы с порядком
+// Utilities for working with order
 const reorderArray = <T extends { order: number }>(
   array: T[],
   startIndex: number,
@@ -80,7 +80,7 @@ const reorderArray = <T extends { order: number }>(
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
 
-  // Обновляем порядок
+  // Update order
   return result.map((item, index) => ({
     ...item,
     order: index,
@@ -92,7 +92,7 @@ const getNextOrder = (array: { order: number }[]): number => {
   return Math.max(...array.map(item => item.order)) + 1;
 };
 
-// Создание slice
+// Creating slice
 const boardSlice = createSlice({
   name: 'board',
   initialState: {
@@ -100,7 +100,7 @@ const boardSlice = createSlice({
     ...loadFromLocalStorage(),
   },
   reducers: {
-    // Действия для колонок
+    // Actions for columns
     addColumn: (state, action: PayloadAction<AddColumnPayload>) => {
       const newColumn: Column = {
         ...action.payload,
@@ -125,11 +125,11 @@ const boardSlice = createSlice({
 
     deleteColumn: (state, action: PayloadAction<string>) => {
       const columnId = action.payload;
-      // Удаляем колонку
+      // Delete column
       state.columns = state.columns.filter(col => col.id !== columnId);
-      // Удаляем все задачи в этой колонке
+      // Delete all tasks in this column
       state.tasks = state.tasks.filter(task => task.columnId !== columnId);
-      // Пересчитываем порядок колонок
+      // Recalculate column order
       state.columns = state.columns.map((col, index) => ({
         ...col,
         order: index,
@@ -143,7 +143,7 @@ const boardSlice = createSlice({
       saveToLocalStorage(state);
     },
 
-    // Действия для задач
+    // Actions for tasks
     addTask: (state, action: PayloadAction<AddTaskPayload>) => {
       const newTask: Task = {
         ...action.payload,
@@ -176,9 +176,9 @@ const boardSlice = createSlice({
       const taskId = action.payload;
       const task = state.tasks.find(t => t.id === taskId);
       if (task) {
-        // Удаляем задачу
+        // Delete task
         state.tasks = state.tasks.filter(t => t.id !== taskId);
-        // Пересчитываем порядок задач в колонке
+        // Recalculate task order in column
         const columnTasks = state.tasks.filter(
           t => t.columnId === task.columnId
         );
@@ -214,7 +214,7 @@ const boardSlice = createSlice({
       const task = state.tasks.find(t => t.id === taskId);
       if (!task) return;
 
-      // Если задача перемещается в ту же колонку
+      // If task is moved within the same column
       if (sourceColumnId === destinationColumnId) {
         const columnTasks = state.tasks
           .filter(t => t.columnId === sourceColumnId)
@@ -226,7 +226,7 @@ const boardSlice = createSlice({
           destinationIndex
         );
 
-        // Обновляем порядок в state
+        // Update order in state
         reorderedTasks.forEach((t, index) => {
           const taskIndex = state.tasks.findIndex(task => task.id === t.id);
           if (taskIndex !== -1) {
@@ -234,7 +234,7 @@ const boardSlice = createSlice({
           }
         });
       } else {
-        // Если задача перемещается в другую колонку
+        // If task is moved to a different column
         const sourceColumnTasks = state.tasks
           .filter(t => t.columnId === sourceColumnId)
           .sort((a, b) => a.order - b.order);
@@ -243,19 +243,19 @@ const boardSlice = createSlice({
           .filter(t => t.columnId === destinationColumnId)
           .sort((a, b) => a.order - b.order);
 
-        // Удаляем задачу из исходной колонки
+        // Remove task from source column
         const [movedTask] = sourceColumnTasks.splice(sourceIndex, 1);
 
-        // Вставляем задачу в целевую колонку
+        // Insert task into destination column
         destinationColumnTasks.splice(destinationIndex, 0, movedTask);
 
-        // Обновляем columnId для перемещенной задачи
+        // Update columnId for moved task
         const taskIndex = state.tasks.findIndex(t => t.id === taskId);
         if (taskIndex !== -1) {
           state.tasks[taskIndex].columnId = destinationColumnId;
         }
 
-        // Обновляем порядок в обеих колонках
+        // Update order in both columns
         sourceColumnTasks.forEach((t, index) => {
           const taskIndex = state.tasks.findIndex(task => task.id === t.id);
           if (taskIndex !== -1) {
@@ -274,7 +274,7 @@ const boardSlice = createSlice({
       saveToLocalStorage(state);
     },
 
-    // Действия для управления состоянием
+    // Actions for state management
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
@@ -287,7 +287,7 @@ const boardSlice = createSlice({
       state.error = null;
     },
 
-    // Сброс состояния
+    // Reset state
     resetBoard: state => {
       state.columns = [];
       state.tasks = [];
@@ -296,7 +296,7 @@ const boardSlice = createSlice({
       localStorage.removeItem(STORAGE_KEY);
     },
 
-    // Действия для множественного выбора задач
+    // Actions for multiple task selection
     selectTask: (state, action: PayloadAction<string>) => {
       const taskId = action.payload;
       if (!state.selectedTaskIds.includes(taskId)) {
@@ -319,7 +319,7 @@ const boardSlice = createSlice({
         .filter(task => task.columnId === columnId)
         .map(task => task.id);
 
-      // Добавляем только те задачи, которые еще не выбраны
+      // Add only those tasks that are not already selected
       columnTaskIds.forEach(taskId => {
         if (!state.selectedTaskIds.includes(taskId)) {
           state.selectedTaskIds.push(taskId);
@@ -341,19 +341,19 @@ const boardSlice = createSlice({
       );
     },
 
-    // Множественные действия с задачами
+    // Multiple actions with tasks
     bulkDeleteTasks: (state, action: PayloadAction<BulkTaskActionPayload>) => {
       const { taskIds } = action.payload;
 
-      // Удаляем задачи
+      // Delete tasks
       state.tasks = state.tasks.filter(task => !taskIds.includes(task.id));
 
-      // Очищаем выбранные задачи
+      // Clear selected tasks
       state.selectedTaskIds = state.selectedTaskIds.filter(
         id => !taskIds.includes(id)
       );
 
-      // Пересчитываем порядок задач в каждой колонке
+      // Recalculate task order in each column
       const columnIds = Array.from(
         new Set(state.tasks.map(task => task.columnId))
       );
@@ -376,10 +376,10 @@ const boardSlice = createSlice({
     bulkMoveTasks: (state, action: PayloadAction<BulkMoveTasksPayload>) => {
       const { taskIds, destinationColumnId } = action.payload;
 
-      // Получаем задачи для перемещения
+      // Get tasks to move
       const tasksToMove = state.tasks.filter(task => taskIds.includes(task.id));
 
-      // Получаем максимальный порядок в целевой колонке
+      // Get max order in destination column
       const destinationTasks = state.tasks.filter(
         task => task.columnId === destinationColumnId
       );
@@ -388,7 +388,7 @@ const boardSlice = createSlice({
           ? Math.max(...destinationTasks.map(task => task.order))
           : -1;
 
-      // Перемещаем задачи
+      // Move tasks
       tasksToMove.forEach((task, index) => {
         const taskIndex = state.tasks.findIndex(t => t.id === task.id);
         if (taskIndex !== -1) {
@@ -398,7 +398,7 @@ const boardSlice = createSlice({
         }
       });
 
-      // Пересчитываем порядок в исходных колонках
+      // Recalculate order in original columns
       const sourceColumnIds = Array.from(
         new Set(tasksToMove.map(task => task.columnId))
       );
@@ -415,7 +415,7 @@ const boardSlice = createSlice({
         });
       });
 
-      // Очищаем выбранные задачи
+      // Clear selected tasks
       state.selectedTaskIds = state.selectedTaskIds.filter(
         id => !taskIds.includes(id)
       );
@@ -442,7 +442,7 @@ const boardSlice = createSlice({
   },
 });
 
-// Экспорт действий
+// Export actions
 export const {
   addColumn,
   updateColumn,
@@ -468,7 +468,7 @@ export const {
   bulkToggleTasksCompleted,
 } = boardSlice.actions;
 
-// Селекторы
+// Selectors
 export const selectColumns = (state: { board: BoardState }) =>
   [...state.board.columns].sort((a, b) => a.order - b.order);
 
@@ -495,7 +495,7 @@ export const selectIsLoading = (state: { board: BoardState }) =>
   state.board.isLoading;
 export const selectError = (state: { board: BoardState }) => state.board.error;
 
-// Селекторы для множественного выбора
+// Selectors for multiple selection
 export const selectSelectedTaskIds = (state: { board: BoardState }) =>
   state.board.selectedTaskIds;
 
@@ -537,5 +537,5 @@ export const selectSelectedTasksInColumnCount = (
   ).length;
 };
 
-// Экспорт reducer
+// Export reducer
 export default boardSlice.reducer;
