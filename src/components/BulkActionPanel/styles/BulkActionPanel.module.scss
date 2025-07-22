@@ -158,30 +158,113 @@
     min-width: auto;
     max-width: none;
     bottom: 10px;
+    padding: 20px;
 
     &__info {
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
       align-items: flex-start;
+      padding-bottom: 12px;
+    }
+
+    &__count {
+      font-size: 16px;
     }
 
     &__shortcuts {
       align-self: flex-end;
+      gap: 6px;
+    }
+
+    &__shortcut {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    &__closeButton {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 18px;
+      padding: 8px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     &__actions {
       flex-direction: column;
+      gap: 12px;
     }
 
     &__actionButton {
       width: 100%;
       justify-content: center;
+      padding: 12px 16px;
+      font-size: 16px;
+      min-height: 48px; // Минимальная высота для сенсорных экранов
     }
 
     &__moveMenu {
       left: auto;
       right: 0;
       min-width: 120px;
+      bottom: auto;
+      top: 100%;
+      margin-bottom: 0;
+      margin-top: 4px;
+    }
+
+    &__moveMenuItem {
+      padding: 12px 16px;
+      font-size: 14px;
+      min-height: 44px; // Минимальная высота для сенсорных экранов
+    }
+  }
+}
+
+// Адаптивность для очень маленьких экранов
+@media (max-width: 480px) {
+  .bulkActionPanel {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    padding: 16px;
+
+    &__info {
+      gap: 10px;
+      padding-bottom: 10px;
+    }
+
+    &__count {
+      font-size: 15px;
+    }
+
+    &__closeButton {
+      top: 8px;
+      right: 8px;
+      font-size: 16px;
+      padding: 6px;
+      min-width: 40px;
+      min-height: 40px;
+    }
+
+    &__actions {
+      gap: 10px;
+    }
+
+    &__actionButton {
+      padding: 10px 14px;
+      font-size: 15px;
+      min-height: 44px;
+    }
+
+    &__moveMenuItem {
+      padding: 10px 14px;
+      font-size: 13px;
+      min-height: 40px;
     }
   }
 } 

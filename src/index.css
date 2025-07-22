@@ -5,9 +5,76 @@ body {
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Предотвращаем горизонтальную прокрутку на мобильных */
+  overflow-x: hidden;
+  /* Улучшаем рендеринг на мобильных устройствах */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 code {
   font-family:
     source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Глобальные стили для мобильных устройств */
+* {
+  /* Улучшаем отзывчивость на сенсорных экранах */
+  -webkit-tap-highlight-color: transparent;
+  /* Предотвращаем выделение текста при двойном нажатии */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Разрешаем выделение текста в полях ввода */
+input, textarea {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Улучшаем скроллинг на мобильных устройствах */
+html {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Скрываем полосу прокрутки на мобильных устройствах */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Минимальные размеры кнопок только для мобильных устройств */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+    /* Улучшаем отзывчивость */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Улучшаем фокус для доступности */
+button:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid #0079bf;
+  outline-offset: 2px;
+}
+
+/* Анимации для лучшей производительности на мобильных */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    transition: all 0.2s ease;
+  }
 }

@@ -116,3 +116,96 @@
     }
   }
 }
+
+// Адаптивность для мобильных устройств
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+
+    &__title {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    &__search {
+      max-width: 100%;
+      margin: 0;
+      order: 2;
+    }
+
+    &__searchInput {
+      padding: 0.75rem 2.5rem 0.75rem 1rem;
+      font-size: 1rem;
+      min-height: 48px; // Минимальная высота для сенсорных экранов
+    }
+
+    &__searchIcon {
+      right: 0.75rem;
+      font-size: 1rem;
+    }
+
+    &__actions {
+      order: 3;
+      width: 100%;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    &__filters {
+      gap: 0.375rem;
+    }
+
+    &__filterButton {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      min-height: 40px; // Минимальная высота для сенсорных экранов
+    }
+
+    &__button {
+      padding: 0.625rem 1rem;
+      font-size: 1rem;
+      min-height: 44px; // Минимальная высота для сенсорных экранов
+    }
+  }
+}
+
+// Адаптивность для очень маленьких экранов
+@media (max-width: 480px) {
+  .header {
+    padding: 0.75rem;
+
+    &__title {
+      font-size: 1.25rem;
+    }
+
+    &__searchInput {
+      padding: 0.625rem 2.25rem 0.625rem 0.875rem;
+      font-size: 0.9375rem;
+      min-height: 44px;
+    }
+
+    &__actions {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    &__filters {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    &__filterButton {
+      padding: 0.5rem 0.625rem;
+      font-size: 0.8125rem;
+      min-height: 36px;
+    }
+
+    &__button {
+      padding: 0.5rem 0.875rem;
+      font-size: 0.9375rem;
+      min-height: 40px;
+    }
+  }
+}

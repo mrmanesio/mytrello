@@ -121,4 +121,59 @@
     background: #e3f2fd;
     border: 2px dashed #2196f3;
   }
+}
+
+// Адаптивность для мобильных устройств
+@media (max-width: 768px) {
+  .column {
+    min-width: 100%;
+    max-width: 100%;
+    margin-right: 0;
+    margin-bottom: 12px;
+    padding: 16px;
+
+    &__title {
+      font-size: 18px;
+    }
+
+    &__taskCount {
+      font-size: 14px;
+      padding: 4px 10px;
+    }
+
+    &__addTaskButton {
+      padding: 12px 16px;
+      font-size: 16px;
+      min-height: 48px; // Минимальная высота для сенсорных экранов
+    }
+
+    &__selectAllButton {
+      padding: 8px 12px;
+      font-size: 14px;
+      min-height: 40px; // Минимальная высота для сенсорных экранов
+    }
+  }
+}
+
+// Адаптивность для очень маленьких экранов
+@media (max-width: 480px) {
+  .column {
+    padding: 12px;
+
+    &__title {
+      font-size: 16px;
+    }
+
+    &__addTaskButton {
+      padding: 10px 14px;
+      font-size: 15px;
+      min-height: 44px;
+    }
+
+    &__selectAllButton {
+      padding: 6px 10px;
+      font-size: 13px;
+      min-height: 36px;
+    }
+  }
 } 
